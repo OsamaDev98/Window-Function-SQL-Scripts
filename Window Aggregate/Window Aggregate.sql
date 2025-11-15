@@ -133,27 +133,62 @@ FROM
 	)t
 WHERE Sales > AvgSales;
 	
+/*
+	-- Find the highest and lowest sales of all orders.
+	-- Find the highest and lowest sales for each product.
+	-- Additionally provide details such order id, order date.
+*/
+SELECT
+	OrderID,
+	OrderDate,
+	ProductID,
+	Sales,
+	MIN(Sales) OVER() MinSales,
+	MAX(Sales) OVER() MaxSales,
+	MIN(Sales) OVER(PARTITION BY ProductID) MinSalesByProduct,
+	MAX(Sales) OVER(PARTITION BY ProductID) MaxSalesByProduct
+FROM
+	Sales.Orders;
 
+-- Show the employees who have the highest salaries.
+SELECT
+	*
+FROM
+	(
+		SELECT
+			*,
+			MAX(Salary) OVER() HighestSalary
+		FROM
+			Sales.Employees
+	)T
+WHERE Salary = HighestSalary;
 
+-- Find the deviation of each sales from the minimum and maximum sales amounts.
+SELECT
+	OrderID,
+	OrderDate,
+	ProductID,
+	Sales,
+	MIN(Sales) OVER() MinSales,
+	MAX(Sales) OVER() MaxSales,
+	Sales - MIN(Sales) OVER() DeviationFromMin,
+	MAX(Sales) OVER() - Sales DeviationFromMax
+FROM
+	Sales.Orders;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
+	-- Find moving average of sales for each product.
+	-- Find moving average of sales for each product over time.
+	-- Find moving average of sales for each product over time, including only the next order.
+*/
+SELECT
+	OrderID,
+	OrderDate,
+	ProductID,
+	Sales,
+	AVG(Sales) OVER(PARTITION BY ProductID) AS AvgByProduct,
+	AVG(Sales) OVER(PARTITION BY ProductID ORDER BY OrderDate) AS MovingAvg,
+	AVG(Sales) OVER(PARTITION BY ProductID ORDER BY OrderDate ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING) AS RollingAvg
+FROM
+	Sales.Orders;
 
